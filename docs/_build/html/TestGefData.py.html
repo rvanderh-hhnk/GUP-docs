@@ -1,0 +1,324 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>TestGefData.py &mdash; GUP-docs 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="GUP-docs 1 documentation" href="index.html" />
+    <link rel="next" title="Messages" href="Messages.html" />
+    <link rel="prev" title="Views.py" href="Views.py.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="testgefdata-py">
+<h1>TestGefData.py<a class="headerlink" href="#testgefdata-py" title="Permalink to this headline">¶</a></h1>
+<p>De afhandeling in functie <strong>save_gef</strong> van <strong>TestGefData.py</strong> is een van de meer ingewikkeldere onderdelen van het portaal.</p>
+<p>Eerst wordt gecheckt of het project van een gef-file al bestaat. Als het project al in gebruik is bij een andere gebruiker wordt de gef afgekeurd met <strong>g = false</strong>. Het script wordt nog wel doorgelezen om te kijken of er nog meer fouten in zitten.</p>
+<p>Als het project al bestaat voor de ingelogde gebruiker gebeurd er niets. Als het nog niet bestaat wordt het aangemaakt.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c1"># Projecten</span>
+<span class="c1"># optie 1) project hoort altijd bij 1 gebruiker</span>
+<span class="c1"># check of project al bestaat onder andere gebruiker</span>
+<span class="k">if</span> <span class="n">Projecten</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">project_name</span> <span class="o">=</span> <span class="n">ProjectID</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">Projecten</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">project_name</span> <span class="o">=</span> <span class="n">ProjectID</span><span class="p">,</span> <span class="n">user_id_id</span> <span class="o">=</span> <span class="n">UserId</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">messages</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="s1">&#39;Project: </span><span class="si">%s</span><span class="s1"> al in gebruik door andere gebruiker&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">ProjectID</span><span class="p">))</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="c1"># check of project al bestaat voor huidige gebruiker</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">Projecten</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">project_name</span> <span class="o">=</span> <span class="n">ProjectID</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">g</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">print</span> <span class="p">(</span><span class="s2">&quot;save new project with </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> &quot;</span><span class="o">%</span><span class="p">(</span><span class="n">ProjectID</span><span class="p">,</span><span class="n">UserID</span><span class="p">))</span>
+        <span class="n">project</span> <span class="o">=</span> <span class="n">Projecten</span><span class="p">(</span><span class="n">project_name</span><span class="o">=</span><span class="n">ProjectID</span><span class="p">,</span> <span class="n">user_id_id</span><span class="o">=</span><span class="n">UserId</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+        <span class="n">project</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="c1"># optie 2) gedeeld projecten: kan verschillende gebruikers hebben. geen constraint</span>
+<span class="c1">## if Projecten.objects.filter(project_name = ProjectID, user_id_id = UserId).exists() == False and g == True: # if Projecten.objects.get(id=files_id)</span>
+</pre></div>
+</div>
+<p>Vanaf dit punt in functie save_gef van TestGefData.py wordt gekeken naar het soort gef-bestand (boring, peilbuisput of sondering) en afhankelijk daarvan behandeld.</p>
+<div class="section" id="afhandeling-boringen">
+<h2>Afhandeling boringen<a class="headerlink" href="#afhandeling-boringen" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="c1"># Boring: nog een keer uitwerken voor andere velden</span>
+<span class="k">if</span> <span class="n">SoortGef</span> <span class="o">==</span> <span class="s1">&#39;boring&#39;</span> <span class="ow">and</span> <span class="n">g</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span> <span class="c1"># boring</span>
+        <span class="k">print</span> <span class="p">(</span><span class="s2">&quot;Boring </span><span class="si">%s</span><span class="s2"> bestaat al&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">gefFileNaam</span><span class="p">))</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">Boring</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bestand_gef</span><span class="o">=</span><span class="n">gefFileNaam</span><span class="p">)</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">bestand_gef</span><span class="o">=</span><span class="n">gefFileNaam</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">download_gef</span><span class="o">=</span><span class="p">(</span><span class="n">hyperlink_root</span><span class="o">+</span><span class="n">gefFileNaam</span><span class="p">)</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">bedrijf</span><span class="o">=</span><span class="n">CompanyID</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">project_id</span><span class="o">=</span><span class="n">ProjectID</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">datum_boring</span><span class="o">=</span><span class="n">StartDatum</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">username</span><span class="o">=</span><span class="n">User</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">x_rd</span><span class="o">=</span><span class="n">X</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">y_rd</span><span class="o">=</span><span class="n">Y</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">mv_nap</span><span class="o">=</span><span class="n">Z</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">gef_file</span><span class="o">=</span><span class="n">gefFile</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">geometry</span><span class="o">=</span><span class="n">PointGeom</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="c1">#messages.add_message(request, messages.INFO, &#39;%s: succesvol overschreven!&#39;%GefFile)</span>
+<span class="k">else</span><span class="p">:</span>
+        <span class="n">boring</span> <span class="o">=</span> <span class="n">Boring</span><span class="p">(</span><span class="n">bestand_gef</span><span class="o">=</span><span class="n">gefFileNaam</span><span class="p">,</span> <span class="n">download_gef</span><span class="o">=</span><span class="p">(</span><span class="n">hyperlink_root</span><span class="o">+</span><span class="n">gefFileNaam</span><span class="p">),</span> <span class="n">datum_boring</span><span class="o">=</span><span class="n">StartDatum</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">User</span><span class="p">,</span> <span class="n">x_rd</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y_rd</span><span class="o">=</span><span class="n">Y</span><span class="p">,</span> <span class="n">mv_nap</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">gef_file</span><span class="o">=</span><span class="n">g</span><span class="p">)</span>
+        <span class="n">boring</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="afhandeling-sonderingen">
+<h2>Afhandeling sonderingen<a class="headerlink" href="#afhandeling-sonderingen" title="Permalink to this headline">¶</a></h2>
+<p>Deze lijkt erg veel op die van boringen:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">if</span> <span class="n">SoortGef</span> <span class="o">==</span> <span class="s1">&#39;sondering&#39;</span> <span class="ow">and</span> <span class="n">g</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span> <span class="c1"># sondering</span>
+        <span class="k">if</span> <span class="n">Sondering</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">bestand_gef</span><span class="o">=</span><span class="n">gefFileNaam</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">print</span> <span class="p">(</span><span class="s2">&quot;Sondering </span><span class="si">%s</span><span class="s2"> bestaat al&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">gefFileNaam</span><span class="p">))</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">Sondering</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bestand_gef</span><span class="o">=</span><span class="n">gefFileNaam</span><span class="p">)</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">bestand_gef</span><span class="o">=</span><span class="n">gefFileNaam</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">download_gef</span><span class="o">=</span><span class="p">(</span><span class="n">hyperlink_root</span><span class="o">+</span><span class="n">gefFileNaam</span><span class="p">)</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">bedrijf</span><span class="o">=</span><span class="n">CompanyId</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">project_id</span><span class="o">=</span><span class="n">ProjectID</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">datum_sondering</span><span class="o">=</span><span class="n">StartDatum</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">username</span><span class="o">=</span><span class="n">User</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">x_rd</span><span class="o">=</span><span class="n">X</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">y_rd</span><span class="o">=</span><span class="n">Y</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">mv_nap</span><span class="o">=</span><span class="n">Z</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">gef_file</span><span class="o">=</span><span class="n">gefFile</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">geometry</span><span class="o">=</span><span class="n">PointGeom</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                <span class="c1">#messages.add_message(request, messages.INFO, &#39;%s: succesvol overschreven!&#39;%gefFile)</span>
+<span class="k">else</span><span class="p">:</span> <span class="c1"># object bestaat nog niet</span>
+        <span class="n">sondering</span> <span class="o">=</span> <span class="n">Sondering</span><span class="p">(</span><span class="n">bestand_gef</span><span class="o">=</span><span class="n">gefFileNaam</span><span class="p">,</span> <span class="n">download_gef</span><span class="o">=</span><span class="p">(</span><span class="n">hyperlink_root</span><span class="o">+</span><span class="n">gefFileNaam</span><span class="p">),</span> <span class="n">datum_sondering</span><span class="o">=</span><span class="n">StartDatum</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">User</span><span class="p">,</span> <span class="n">x_rd</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y_rd</span><span class="o">=</span><span class="n">Y</span><span class="p">,</span> <span class="n">mv_nap</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">gef_file</span><span class="o">=</span><span class="n">g</span><span class="p">)</span>
+        <span class="n">sondering</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="afhandeling-waypoints">
+<h2>Afhandeling waypoints<a class="headerlink" href="#afhandeling-waypoints" title="Permalink to this headline">¶</a></h2>
+<p>Waypoints worden alleen maar gebruikt voor de interactieve tabel op het portaal. Een waypoint kan zowel een boringen, peilbuisput of sondering zijn en bevat alleen algemene informatie (gedefinieerd als gef-standaard oftewel gegevens die niet specifiek zijn en altijd voorkomen ongeacht of het om een boring, peilbuisput of sondering gaat.):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c1"># Waypoint</span>
+<span class="k">if</span> <span class="n">Waypoint</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">gefFileNaam</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">g</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">print</span> <span class="p">(</span><span class="s2">&quot;Waypoint </span><span class="si">%s</span><span class="s2"> bestaat al &quot;</span><span class="o">%</span><span class="p">(</span><span class="n">gefFileNaam</span><span class="p">))</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">Waypoint</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">gefFIleNaam</span><span class="p">)</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">name</span><span class="o">=</span><span class="n">gefFileNaam</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">download_gef</span><span class="o">=</span><span class="p">(</span><span class="n">hyperlink_root</span><span class="o">+</span><span class="n">GefFileNaam</span><span class="p">)</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">company</span><span class="o">=</span><span class="n">CompanyID</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">projectid</span><span class="o">=</span><span class="n">ProjectID</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">startdatum</span><span class="o">=</span><span class="n">StartDatum</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">username</span><span class="o">=</span><span class="n">User</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">soortgef</span><span class="o">=</span><span class="n">SoortGef</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">x</span><span class="o">=</span><span class="n">X</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">y</span><span class="o">=</span><span class="n">Y</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">z</span><span class="o">=</span><span class="n">Z</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">geometry</span><span class="o">=</span><span class="n">PointGeom</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">messages</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: succesvol overschreven!&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">gefFile</span><span class="p">))</span>
+<span class="k">elif</span> <span class="n">g</span><span class="o">==</span><span class="bp">True</span><span class="p">:</span>
+        <span class="n">waypoint</span> <span class="o">=</span> <span class="n">Waypoint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">gefFileNaam</span><span class="p">,</span> <span class="n">download_gef</span><span class="o">=</span><span class="p">(</span><span class="n">hyperlink_root</span><span class="o">+</span><span class="n">gefFileNaam</span><span class="p">),</span> <span class="n">company</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">startdatum</span><span class="o">=</span><span class="n">StartDatum</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">User</span><span class="p">,</span> <span class="n">soortgef</span><span class="o">=</span><span class="n">SoortGef</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">Y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">PointGeom</span><span class="p">)</span>
+        <span class="n">waypoint</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="afhandeling-peilbuisput">
+<h2>Afhandeling peilbuisput<a class="headerlink" href="#afhandeling-peilbuisput" title="Permalink to this headline">¶</a></h2>
+<p>Peilbuisputten zijn wat ingewikkelder dan de andere objecten. Specifieke attributen worden opgevraagd in functie “gef_peilbuisput” van TestGefData.py:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c1"># Peilbuisput</span>
+<span class="k">if</span> <span class="n">SoortGef</span> <span class="o">==</span> <span class="s1">&#39;peilbuisput&#39;</span> <span class="ow">and</span> <span class="n">g</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="c1"># ga naar functie gef_peilbuisput voor specifieke peilbuisput-attributen</span>
+        <span class="k">print</span> <span class="p">(</span><span class="s2">&quot;ga hier naar gef_peilbuisput&quot;</span><span class="p">)</span>
+        <span class="n">BESTAND_PARENT</span><span class="p">,</span> <span class="n">BORING_ID</span><span class="p">,</span> <span class="n">DATUM_PLAATSING</span><span class="p">,</span> <span class="n">AANTAL_PEILBUIZEN</span><span class="p">,</span> <span class="n">PROJECTNUMMER</span> <span class="o">=</span> <span class="n">gef_peilbuisput</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="n">gefFile</span><span class="p">,</span><span class="n">d_GEF</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">BESTAND_PARENT</span> <span class="o">==</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">BORING_ID</span> <span class="o">==</span><span class="bp">None</span><span class="p">:</span>
+                <span class="k">print</span> <span class="p">(</span><span class="s2">&quot;geen parent gevonden&quot;</span><span class="p">)</span>
+                <span class="n">messages</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">messages</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> Parent (boring) bij niet gevonden!&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">gefFile</span><span class="p">))</span>
+                <span class="n">g</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">print</span> <span class="p">(</span><span class="s2">&quot;terug uit gef_peilbuisput&quot;</span><span class="p">)</span>
+        <span class="c1"># print (Peilbuisput.objects.get(bestand_gef=gefFileNaam))</span>
+        <span class="k">if</span> <span class="n">Peilbuisput</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">bestand_gef</span><span class="o">=</span><span class="n">gefFileNaam</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">g</span><span class="o">==</span><span class="bp">True</span><span class="p">:</span>
+                <span class="k">print</span> <span class="p">(</span><span class="s2">&quot;Peilbuisput </span><span class="si">%s</span><span class="s2"> bestaat al&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">gefFileNaam</span><span class="p">))</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">Peilbuisput</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bestand_gef</span><span class="o">=</span><span class="n">gefFileNaam</span><span class="p">)</span>
+                <span class="k">print</span> <span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;test&quot;</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">boreholeident</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">boring_id_id</span> <span class="o">=</span> <span class="n">BORING_ID</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">peilbuisraai_id</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">x_rd</span> <span class="o">=</span> <span class="n">X</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">y_rd</span> <span class="o">=</span> <span class="n">Yz</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">dwarspositie</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">datum_plaatsing</span> <span class="o">=</span> <span class="n">StartDatum</span> <span class="c1">#DATUM_PLAATSING moet nog omgezet worden naar &#39;yymmdd&#39;</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">aanwezig</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">datum_verwijdering</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">bedrijf</span> <span class="o">=</span> <span class="n">CompanyID</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">project_id</span> <span class="o">=</span> <span class="n">ProjectID</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">type_peilbuizen</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">aantal_peilbuizen</span> <span class="o">=</span> <span class="n">AANTAL_PEILBUIZEN</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">bestand_peilbuisput</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">bestand_parent</span> <span class="o">=</span> <span class="n">BESTAND_PARENT</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">gtlp_id</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">bestand_gef</span> <span class="o">=</span> <span class="n">gefFileNaam</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">bestand_grondonderzoek</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">gef_file</span> <span class="o">=</span> <span class="n">gefFile</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">download_gef</span> <span class="o">=</span> <span class="p">(</span><span class="n">hyperlink_root</span><span class="o">+</span><span class="n">gefFileNaam</span><span class="p">)</span>
+                <span class="c1"># status</span>
+                <span class="c1"># #DateCreated =</span>
+                <span class="c1"># #DateMutated =</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">username</span> <span class="o">=</span> <span class="n">User</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">PointGeom</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                <span class="c1">#messages.add_message(request, messages.INFO, &#39;%s: succesvol overschreven!&#39;%(gefFile))</span>
+        <span class="k">elif</span> <span class="n">g</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">peilbuisput</span> <span class="o">=</span> <span class="n">Peilbuisput</span><span class="p">(</span><span class="n">boreholeident</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="functie-gef-peilbuisput">
+<h2>Functie gef_peilbuisput<a class="headerlink" href="#functie-gef-peilbuisput" title="Permalink to this headline">¶</a></h2>
+<p>Voert tests uit voor de correctheid van de peilbuisput. Haalt specifieke data op zoals het BORING_ID.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">gef_peilbuisput</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="n">gefFile</span><span class="p">,</span><span class="n">d_GEF</span><span class="p">):</span>
+        <span class="c1">#&#39;&#39;&#39;    haalt de standaard gegevens op uit gef-bestanden via UtlGefOpen.</span>
+        <span class="c1">#       functie gef_peilbuisput voor specifieke peilbuisput-attributen</span>
+        <span class="c1">#       voert verschillende checks uit en genereert desgewenst foutmeldingen.&#39;&#39;&#39;</span>
+        <span class="c1"># checks werken nog niet, dus alles op &#39;false&#39;</span>
+        <span class="n">sTEST1</span> <span class="o">=</span> <span class="s1">&#39;false&#39;</span> <span class="c1"># plotable</span>
+        <span class="n">sTEST2</span> <span class="o">=</span> <span class="s1">&#39;false&#39;</span> <span class="c1"># consistent data block</span>
+        <span class="n">sTEST3</span> <span class="o">=</span> <span class="s1">&#39;false&#39;</span> <span class="c1"># correcte header</span>
+        <span class="n">sTEST4</span> <span class="o">=</span> <span class="s1">&#39;false&#39;</span> <span class="c1"># beschreven als BOREHOLE-Report</span>
+        <span class="c1"># Valideer het ingelezen bestand eerst</span>
+        <span class="k">print</span> <span class="p">(</span><span class="s2">&quot;gaat naar IsCorrectBestandPeilbuisput&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isCorrectBestandPeilbuisput</span><span class="p">(</span><span class="n">gefFile</span><span class="p">,</span> <span class="n">d_GEF</span><span class="p">,</span> <span class="n">sTEST1</span><span class="p">,</span> <span class="n">sTEST2</span><span class="p">,</span> <span class="n">sTEST3</span><span class="p">,</span> <span class="n">sTEST4</span><span class="p">):</span>
+                <span class="c1"># Bestand is niet in orde, skip</span>
+                <span class="c1"># pass</span>
+                <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
+        <span class="k">else</span><span class="p">:</span>
+                <span class="k">print</span> <span class="p">(</span><span class="s2">&quot;gaat verder na IsCOrrectBestandPeilbuisput&quot;</span><span class="p">)</span>
+                <span class="c1"># Attribuutwaarden</span>
+                <span class="c1"># iMaxID +=1 # verhoog volgnummer ID</span>
+                <span class="c1"># sPeilbuisputID = sFORMATSTRING % iMaxID, b.k.note: is dit nodig om zelf hier te bepalen</span>
+                <span class="c1"># BOREHOLE_ID = sPeilbuisputID</span>
+                <span class="c1"># BESTAND_PEILBUISPUT = sGefBestand # bestandsnaam, b.k.note: bestandsnaam weten we al.</span>
+                <span class="n">sBestandParent</span> <span class="o">=</span> <span class="n">UtlGefOpen</span><span class="o">.</span><span class="n">Get_PBP_BestandParent</span><span class="p">(</span><span class="n">d_GEF</span><span class="p">)</span>
+                <span class="n">BESTAND_PARENT</span> <span class="o">=</span> <span class="n">sBestandParent</span>
+                <span class="n">BORING_ID</span> <span class="o">=</span> <span class="n">GetBoringID</span><span class="p">(</span><span class="n">BESTAND_PARENT</span><span class="p">)</span>
+                <span class="k">print</span><span class="p">(</span><span class="s2">&quot;BORING_ID = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">BORING_ID</span><span class="p">))</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">BORING_ID</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+                        <span class="n">BORING_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">BORING_ID</span><span class="p">)</span>
+                <span class="n">PROJECTNUMMER</span> <span class="o">=</span> <span class="n">UtlGefOpen</span><span class="o">.</span><span class="n">Get_ALG_ProjectNummer</span><span class="p">(</span><span class="n">d_GEF</span><span class="p">)</span>
+                <span class="n">DATUM_PLAATSING</span> <span class="o">=</span> <span class="n">UtlGefOpen</span><span class="o">.</span><span class="n">Get_PBP_DatumPlaatsing</span><span class="p">(</span><span class="n">d_GEF</span><span class="p">)</span>
+                <span class="n">AANTAL_PEILBUIZEN</span> <span class="o">=</span> <span class="n">UtlGefOpen</span><span class="o">.</span><span class="n">Get_PBP_AantalPeilbuizen</span><span class="p">(</span><span class="n">d_GEF</span><span class="p">)</span>
+                <span class="k">print</span><span class="p">(</span><span class="n">PROJECTNUMMER</span><span class="p">,</span><span class="n">DATUM</span><span class="p">,</span><span class="n">PLAATSING</span><span class="p">,</span><span class="n">AANTAL_PEILBUIZEN</span><span class="p">)</span>
+                <span class="c1"># VUl de bijbehorende peilbuisgegevens</span>
+                <span class="c1"># VulTblPb(i_oGp, i_sPadTargetTblPb, sPeilbuisputID, i_sPadTargetTblFt)</span>
+                <span class="c1"># iCountPunten += 1</span>
+                <span class="k">return</span> <span class="n">BESTAND_PARENT</span><span class="p">,</span> <span class="n">BORING_ID</span><span class="p">,</span> <span class="n">DATUM_PLAATSING</span><span class="p">,</span> <span class="n">AANTAL_PEILBUIZEN</span><span class="p">,</span> <span class="n">PROJECTNUMMER</span>
+
+        <span class="c1"># Print (&#39;\nTotaal aantal GEF bestanden in folder: %6i&#39; %(len(oListGefBestanden)))</span>
+        <span class="c1"># Print (&#39;Aantal peilbuisput locaties toegevoegd: %6i&#39; %(iCountPunten))</span>
+        <span class="c1"># Print (&#39;- met daarin aantal peilbuizen: %6i&#39;%(iCountPb))</span>
+        <span class="c1"># Print (&#39;- met daarin aantal filters: %6i&#39;%(iCountFt))</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="c1"># -------------------------------------------------------------------------------</span>
+<span class="c1"># Purpose: Haal uit fc BORING het ID dat hoort bij de opgegeven parent-</span>
+<span class="c1">#          bestandsnaam</span>
+<span class="c1"># -------------------------------------------------------------------------------</span>
+<span class="k">def</span> <span class="nf">GetBoringID</span><span class="p">(</span><span class="n">BESTAND_PARENT</span><span class="p">):</span>
+        <span class="c1"># Maxmimale afstand tussen peilbuisput en parent-boring</span>
+        <span class="n">fMAX_AFSTAND</span> <span class="o">=</span> <span class="mf">10.0</span>
+        <span class="n">sResult</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">iCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">print</span> <span class="p">(</span><span class="s2">&quot;zoekt &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">BESTAND_PARENT</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; in Boringen.bestand_gef&quot;</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">Boring</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">bestand_gef</span> <span class="o">=</span> <span class="n">BESTAND_PARENT</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+                <span class="k">print</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%i</span><span class="s2"> boringen gevonden met </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">),</span><span class="n">BESTAND_PARENT</span><span class="p">))</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">sResult</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">return</span> <span class="n">sResult</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">TestGefData.py</a><ul>
+<li><a class="reference internal" href="#afhandeling-boringen">Afhandeling boringen</a></li>
+<li><a class="reference internal" href="#afhandeling-sonderingen">Afhandeling sonderingen</a></li>
+<li><a class="reference internal" href="#afhandeling-waypoints">Afhandeling waypoints</a></li>
+<li><a class="reference internal" href="#afhandeling-peilbuisput">Afhandeling peilbuisput</a></li>
+<li><a class="reference internal" href="#functie-gef-peilbuisput">Functie gef_peilbuisput</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="Views.py.html" title="previous chapter">Views.py</a></li>
+      <li>Next: <a href="Messages.html" title="next chapter">Messages</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/TestGefData.py.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, rvanderh-hhnk.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+      |
+      <a href="_sources/TestGefData.py.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
