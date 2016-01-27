@@ -6,6 +6,9 @@ Gef Upload Portaal HHNK
 Upload van Gef-file
 *******************
 
+Inhoudsopgave
+=============
+
 .. toctree::
    :maxdepth: 2
    
@@ -14,6 +17,3 @@ Upload van Gef-file
    Views.py
    TestGefData.py
    Messages
-
-
-
