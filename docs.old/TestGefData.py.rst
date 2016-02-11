@@ -2,12 +2,6 @@
 TestGefData.py
 ##############
 
-evenwattesten
-*************
-
-eindetesten
-***********
-
 De afhandeling in functie **save_gef** van **TestGefData.py** is een van de meer ingewikkeldere onderdelen van het portaal.
 
 Eerst wordt gecheckt of het project van een gef-file al bestaat. Als het project al in gebruik is bij een andere gebruiker wordt de gef afgekeurd met **g = false**. Het script wordt nog wel doorgelezen om te kijken of er nog meer fouten in zitten.
