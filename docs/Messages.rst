@@ -5,6 +5,8 @@ Messages
 Testzooi
 ********
 - test1
+- test2
+
 *********
 Origineel
 *********
