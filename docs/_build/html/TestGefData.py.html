@@ -86,15 +86,11 @@
 <li class="toctree-l1"><a class="reference internal" href="Home.html.html">Home.html</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Views.py.html">Views.py</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">TestGefData.py</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#evenwattesten">evenwattesten</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#eindetesten">eindetesten</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#afhandeling-boringen">Afhandeling boringen</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#afhandeling-sonderingen">Afhandeling sonderingen</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#afhandeling-waypoints">Afhandeling waypoints</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#afhandeling-peilbuisput">Afhandeling peilbuisput</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#functie-gef-peilbuisput">Functie gef_peilbuisput</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#afhandeling-boringen">Afhandeling boringen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#afhandeling-sonderingen">Afhandeling sonderingen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#afhandeling-waypoints">Afhandeling waypoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#afhandeling-peilbuisput">Afhandeling peilbuisput</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#functie-gef-peilbuisput">Functie gef_peilbuisput</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Messages.html">Messages</a></li>
@@ -144,11 +140,6 @@
             
   <div class="section" id="testgefdata-py">
 <h1>TestGefData.py<a class="headerlink" href="#testgefdata-py" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="evenwattesten">
-<h2>evenwattesten<a class="headerlink" href="#evenwattesten" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="eindetesten">
-<h2>eindetesten<a class="headerlink" href="#eindetesten" title="Permalink to this headline">¶</a></h2>
 <p>De afhandeling in functie <strong>save_gef</strong> van <strong>TestGefData.py</strong> is een van de meer ingewikkeldere onderdelen van het portaal.</p>
 <p>Eerst wordt gecheckt of het project van een gef-file al bestaat. Als het project al in gebruik is bij een andere gebruiker wordt de gef afgekeurd met <strong>g = false</strong>. Het script wordt nog wel doorgelezen om te kijken of er nog meer fouten in zitten.</p>
 <p>Als het project al bestaat voor de ingelogde gebruiker gebeurd er niets. Als het nog niet bestaat wordt het aangemaakt.:</p>
@@ -169,7 +160,7 @@
 </div>
 <p>Vanaf dit punt in functie save_gef van TestGefData.py wordt gekeken naar het soort gef-bestand (boring, peilbuisput of sondering) en afhankelijk daarvan behandeld.</p>
 <div class="section" id="afhandeling-boringen">
-<h3>Afhandeling boringen<a class="headerlink" href="#afhandeling-boringen" title="Permalink to this headline">¶</a></h3>
+<h2>Afhandeling boringen<a class="headerlink" href="#afhandeling-boringen" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python"><div class="highlight"><pre><span class="c1"># Boring: nog een keer uitwerken voor andere velden</span>
 <span class="k">if</span> <span class="n">SoortGef</span> <span class="o">==</span> <span class="s1">&#39;boring&#39;</span> <span class="ow">and</span> <span class="n">g</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span> <span class="c1"># boring</span>
         <span class="k">print</span> <span class="p">(</span><span class="s2">&quot;Boring </span><span class="si">%s</span><span class="s2"> bestaat al&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">gefFileNaam</span><span class="p">))</span>
@@ -194,7 +185,7 @@
 </div>
 </div>
 <div class="section" id="afhandeling-sonderingen">
-<h3>Afhandeling sonderingen<a class="headerlink" href="#afhandeling-sonderingen" title="Permalink to this headline">¶</a></h3>
+<h2>Afhandeling sonderingen<a class="headerlink" href="#afhandeling-sonderingen" title="Permalink to this headline">¶</a></h2>
 <p>Deze lijkt erg veel op die van boringen:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">if</span> <span class="n">SoortGef</span> <span class="o">==</span> <span class="s1">&#39;sondering&#39;</span> <span class="ow">and</span> <span class="n">g</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span> <span class="c1"># sondering</span>
         <span class="k">if</span> <span class="n">Sondering</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">bestand_gef</span><span class="o">=</span><span class="n">gefFileNaam</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
@@ -220,7 +211,7 @@
 </div>
 </div>
 <div class="section" id="afhandeling-waypoints">
-<h3>Afhandeling waypoints<a class="headerlink" href="#afhandeling-waypoints" title="Permalink to this headline">¶</a></h3>
+<h2>Afhandeling waypoints<a class="headerlink" href="#afhandeling-waypoints" title="Permalink to this headline">¶</a></h2>
 <p>Waypoints worden alleen maar gebruikt voor de interactieve tabel op het portaal. Een waypoint kan zowel een boringen, peilbuisput of sondering zijn en bevat alleen algemene informatie (gedefinieerd als gef-standaard oftewel gegevens die niet specifiek zijn en altijd voorkomen ongeacht of het om een boring, peilbuisput of sondering gaat.):</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c1"># Waypoint</span>
 <span class="k">if</span> <span class="n">Waypoint</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">gefFileNaam</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">g</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
@@ -246,7 +237,7 @@
 </div>
 </div>
 <div class="section" id="afhandeling-peilbuisput">
-<h3>Afhandeling peilbuisput<a class="headerlink" href="#afhandeling-peilbuisput" title="Permalink to this headline">¶</a></h3>
+<h2>Afhandeling peilbuisput<a class="headerlink" href="#afhandeling-peilbuisput" title="Permalink to this headline">¶</a></h2>
 <p>Peilbuisputten zijn wat ingewikkelder dan de andere objecten. Specifieke attributen worden opgevraagd in functie “gef_peilbuisput” van TestGefData.py:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c1"># Peilbuisput</span>
 <span class="k">if</span> <span class="n">SoortGef</span> <span class="o">==</span> <span class="s1">&#39;peilbuisput&#39;</span> <span class="ow">and</span> <span class="n">g</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
@@ -298,7 +289,7 @@
 </div>
 </div>
 <div class="section" id="functie-gef-peilbuisput">
-<h3>Functie gef_peilbuisput<a class="headerlink" href="#functie-gef-peilbuisput" title="Permalink to this headline">¶</a></h3>
+<h2>Functie gef_peilbuisput<a class="headerlink" href="#functie-gef-peilbuisput" title="Permalink to this headline">¶</a></h2>
 <p>Voert tests uit voor de correctheid van de peilbuisput. Haalt specifieke data op zoals het BORING_ID.:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">gef_peilbuisput</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="n">gefFile</span><span class="p">,</span><span class="n">d_GEF</span><span class="p">):</span>
         <span class="c1">#&#39;&#39;&#39;    haalt de standaard gegevens op uit gef-bestanden via UtlGefOpen.</span>
@@ -360,7 +351,6 @@
                 <span class="n">sResult</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">id</span>
         <span class="k">return</span> <span class="n">sResult</span>
 </pre></div>
-</div>
 </div>
 </div>
 </div>
