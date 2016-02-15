@@ -1,6 +1,13 @@
 ########
 Messages
 ########
+********
+Testzooi
+********
+- test1
+*********
+Origineel
+*********
 De belangrijkste messages: "*upload succesvol*" of "*upload niet gelukt, pas gef aan*" worden geregeld bij het opslaan van waypoint in functie "save_gef" in **TestGefData.py**.
 
 Ook in functie "upload_gef" in views.py worden enkele foutmeldingen gegenereerd als daar een fout optreed. Bijvoorbeeld als er iets misgaat bij het maken van de dictionary d_GEF in  **UtlGefOpen.py** wordt hier een foutmelding gegeven: "*fout bij uitlezen gef, pas gef aan*"
